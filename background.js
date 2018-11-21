@@ -1,14 +1,17 @@
-chrome.runtime.onInstalled.addListener(function() {
-  chrome.storage.sync.set({color: '#3aa757'}, function() {
-    console.log("The color is green.");
-  });
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
-    chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: [new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: {hostEquals: 'developer.chrome.com'},
+chrome.contextMenus.create({
+  title: 'hello',
+  contexts: ['selection'],
+  onclick: function (info, tab) {
+    chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        menuContent: info.selectionText
+      }, function (response) {
+        console.log(response)
       })
-      ],
-          actions: [new chrome.declarativeContent.ShowPageAction()]
-    }]);
-  });
-});
+    })
+    console.log(info.selectionText)
+  }
+})

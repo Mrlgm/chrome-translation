@@ -1,19 +1,24 @@
-let changeColor = document.getElementById('changeColor');
+console.log('popup')
 
-chrome.storage.sync.get('color', function (data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
-});
+let select = document.querySelector('#select')
 
-changeColor.onclick = function (element) {
-  let color = element.target.value;
-  chrome.tabs.query({
-    active: true,
-    currentWindow: true
-  }, function (tabs) {
-    chrome.tabs.executeScript(
-      tabs[0].id, {
-        code: 'document.body.style.backgroundColor = "' + color + '";'
-      });
-  });
-};
+chrome.storage.sync.get(['type'],(result)=>{
+	select.value = result['type']
+})
+
+select.onchange = function() {
+	console.log(this.value)
+	let self = this
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+	  chrome.tabs.sendMessage(tabs[0].id, {type: self.value}, function(response) {
+	    console.log(response)
+	  })
+	})
+
+	chrome.storage.sync.set({'type': this.value})
+  if(this.value === 'none') {
+  	chrome.browserAction.setBadgeText({text: '关'})
+  } else {
+  	chrome.browserAction.setBadgeText({text: '开'})
+  }
+}
